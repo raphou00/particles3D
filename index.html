@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="./favicon.ico" type="image/x-icon">
+        <title>Particules 3D</title>
+        <style>body {margin: 0;overflow: hidden;}</style>
+    </head>
+    <body>
+        <canvas></canvas>
+        <script src="./three.js"></script>
+        <script>
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({canvas: document.querySelector("canvas"), antialias: true});
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            scene.background = new THREE.Color(0x111);
+            
+            camera.position.z = 20;
+            
+            const couleurs = ["red", "green", "blue", "cyan", "magenta", "yellow", "purple", "pink", "aqua", "orange"];
+            const particules = [];
+            
+            function particule() {
+                const rdx = Math.random() * 0.1;
+                const rdy = Math.random() * 0.1;
+                const rdz = Math.random() * 0.1;
+                const dx = Math.random() > 0.5 ? -rdx : rdx;
+                const dy = Math.random() > 0.5 ? -rdy : rdy;
+                const dz = Math.random() > 0.5 ? -rdz : rdz;
+
+                const cube = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.5, 0.5, 0.5),
+                    new THREE.MeshBasicMaterial({color: couleurs[Math.floor(Math.random() * couleurs.length)]})
+                );
+
+                const bordure = new THREE.LineSegments(
+                    new THREE.EdgesGeometry(cube.geometry),
+                    new THREE.LineBasicMaterial({color: "white"})
+                );
+
+                cube.add(bordure);
+                scene.add(cube);
+                
+                const p = {obj: cube, dx: dx, dy: dy, dz: dz};
+                
+                setTimeout(() => {
+                    scene.remove(p.obj);
+                    particules.splice(particules.indexOf(p), 1);
+                }, 5000);
+                
+                particules.push(p);
+            }
+            
+            setInterval(() => {
+                particule();
+        
+                particules.forEach(p => {
+                    p.obj.position.x += p.dx;
+                    p.obj.position.y += p.dy;
+                    p.obj.position.z += p.dz;
+
+                    p.obj.rotation.x += 0.01;
+                    p.obj.rotation.y += 0.01;
+                });
+                
+                renderer.render(scene, camera);
+            }, 10);
+        </script>
+    </body>
+</html>
